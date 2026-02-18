@@ -28,3 +28,7 @@ Which services each user is interested in (delivery, pick_up, payment).
 ## How to Run the Project
 
 ## Key Design Decisions & Tradeoffs
+
+## Live Demo
+
+#### Visit the live demo here: https://brighte-eats-demo.jttorate.com

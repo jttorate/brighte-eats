@@ -13,7 +13,7 @@ These are the key features the system should provide:
 - Expression of Interest Form: A form or interface for users to submit their interest in Brighte Eats. Users should indicate which services they are interested in:
 
 ```
-delivery | pick-up | payment
+delivery | pick_up | payment
 ```
 
 - Dashboard for Leads: A dashboard where Brighte staff can view all submitted expressions of interest. Dashboard features could include:

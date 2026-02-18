@@ -1,4 +1,4 @@
-# Brighte Eats App (Assessment Project)
+# Brighte Eats (Assessment Project)
 
 ##### Disclaimer: This project was completed as part of a technical assessment/exam for Brighte. All code and design decisions were made solely for the purposes of this assessment.
 
@@ -13,7 +13,7 @@ These are the key features the system should provide:
 - Expression of Interest Form: A form or interface for users to submit their interest in Brighte Eats. Users should indicate which services they are interested in:
 
 ```
-Delivery | Pick-up | Payment
+delivery | pick-up | payment
 ```
 
 - Dashboard for Leads: A dashboard where Brighte staff can view all submitted expressions of interest. Dashboard features could include:

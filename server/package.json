@@ -4,7 +4,7 @@
   "description": "Disclaimer: This project is part of a technical assessment/exam",
   "main": "index.js",
   "scripts": {
-    "dev": "ts-node src/index.ts",
+    "dev": "ts-node-dev --respawn --transpile-only src/index.ts",
     "test": "jest --coverage",
     "build": "tsc",
     "start": "node dist/index.js",
@@ -27,6 +27,7 @@
     "jest": "^30.2.0",
     "ts-jest": "^29.4.6",
     "ts-node": "^10.9.1",
+    "ts-node-dev": "^2.0.0",
     "typescript": "^5.2.0"
   }
 }

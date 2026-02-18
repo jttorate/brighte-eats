@@ -27,6 +27,31 @@ Which services each user is interested in (delivery, pick_up, payment).
 
 ## How to Run the Project
 
+This project has three main components:
+
+1. Run Backend API (Node.js + TypeScript)
+
+```bash
+cd server           # go to server folder
+npm install         # install dependencies
+npm run dev         # run server in development mode (with ts-node-dev)
+```
+
+2. Run Backend Unit Tests (Jest)
+
+```bash
+cd server           # go to server folder
+npm run test        # run all unit tests
+```
+
+3. Frontend App (React + TypeScript)
+
+```bash
+cd client           # go to client folder
+npm install         # install dependencies
+npm run dev         # run React development server
+```
+
 ## Key Design Decisions & Tradeoffs
 
 ## Live Demo

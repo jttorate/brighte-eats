@@ -1,4 +1,4 @@
-import { resolvers } from "../resolvers";
+import { resolvers } from "../src/resolvers";
 
 test("register mutation returns lead with services", async () => {
   const args = {

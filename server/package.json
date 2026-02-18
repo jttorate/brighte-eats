@@ -1,7 +1,7 @@
 {
   "name": "brighte-eats-server",
   "version": "1.0.0",
-  "description": "⚠️ Disclaimer: This project is part of a technical assessment/exam",
+  "description": "Disclaimer: This project is part of a technical assessment/exam",
   "main": "index.js",
   "scripts": {
     "dev": "ts-node src/index.ts",

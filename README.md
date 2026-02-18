@@ -20,7 +20,7 @@ delivery | pick_up | payment
 
 ```
 List of all users who submitted interest.
-Which services each user is interested in (delivery, pick-up, payment).
+Which services each user is interested in (delivery, pick_up, payment).
 ```
 
 ## Project Structure

@@ -29,14 +29,14 @@ Which services each user is interested in (delivery, pick_up, payment).
 
 ```
 server/
-├── contracts/                      # Postman collections
+├── contracts/          # Postman collections
 ├── prisma/
 ├── src/
-│ ├── index.ts                      # App entry point, express app setup
+│ ├── index.ts          # App entry point, express app setup
 │ ├── resolvers.ts
 │ ├── schema.ts
 ├── tests/
-│ └── register.test                 # Jest unit test
+│ └── register.test     # Jest unit test
 ├── jest.config
 ├── package.json
 └── tsconfig.json

@@ -13,6 +13,6 @@ model Lead {
   email     String
   mobile    String
   postcode  String
-  services  String // ["DELIVERY", "PICK-UP", "PAYMENT"]
+  services  String // ["delivery", "pick-up", "payment"]
   createdAt DateTime @default(now())
 }

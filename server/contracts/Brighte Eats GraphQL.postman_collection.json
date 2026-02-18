@@ -1,0 +1,231 @@
+{
+  "info": {
+    "_postman_id": "209b08ed-09e3-4b16-8659-aa2c87c274b2",
+    "name": "Brighte Eats GraphQL",
+    "description": "GraphQL requests for Brighte Eats project",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "955567"
+  },
+  "item": [
+    {
+      "name": "Get All Leads",
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "exec": [
+              "// Build GraphQL query string\r",
+              "const query = `\r",
+              "query {\r",
+              "  leads {\r",
+              "    id\r",
+              "    name\r",
+              "    email\r",
+              "    mobile\r",
+              "    postcode\r",
+              "    services\r",
+              "    createdAt\r",
+              "  }\r",
+              "}`;\r",
+              "\r",
+              "// Build request body\r",
+              "const requestBody = { query: query };\r",
+              "\r",
+              "// Save stringified body to environment variable\r",
+              "pm.environment.set(\"graphqlBody\", JSON.stringify(requestBody));\r",
+              ""
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{{graphqlBody}}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/graphql",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "graphql"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Get Single Lead",
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "exec": [
+              "// Example: dynamic id (can be hardcoded or from environment/variables)\r",
+              "const leadId = 1;\r",
+              "\r",
+              "// Build GraphQL query string\r",
+              "const query = `\r",
+              "query {\r",
+              "  lead(id: ${leadId}) {\r",
+              "    id\r",
+              "    name\r",
+              "    email\r",
+              "    mobile\r",
+              "    postcode\r",
+              "    services\r",
+              "    createdAt\r",
+              "  }\r",
+              "}`;\r",
+              "\r",
+              "// Build request body\r",
+              "const requestBody = { query: query };\r",
+              "\r",
+              "// Save stringified body to environment variable\r",
+              "pm.environment.set(\"graphqlBody\", JSON.stringify(requestBody));\r",
+              ""
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{{graphqlBody}}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/graphql",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "graphql"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Register New Lead",
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "exec": [
+              "// Dynamic values (can be static or from environment/variables)\r",
+              "const name = \"Alice\";\r",
+              "const email = \"alice@example.com\";\r",
+              "const mobile = \"0412345678\";\r",
+              "const postcode = \"3000\";\r",
+              "const services = [\"delivery\", \"payment\"]; // Array for GraphQL list\r",
+              "\r",
+              "// Convert array to GraphQL list format (no quotes around enum values)\r",
+              "const servicesString = services.join(\", \");\r",
+              "\r",
+              "// Build mutation string\r",
+              "const mutation = `\r",
+              "mutation {\r",
+              "  register(\r",
+              "    name: \"${name}\"\r",
+              "    email: \"${email}\"\r",
+              "    mobile: \"${mobile}\"\r",
+              "    postcode: \"${postcode}\"\r",
+              "    services: [${servicesString}]\r",
+              "  ) {\r",
+              "    id\r",
+              "    name\r",
+              "    services\r",
+              "  }\r",
+              "}`;\r",
+              "\r",
+              "// Build request body\r",
+              "const requestBody = { query: mutation };\r",
+              "\r",
+              "// Save stringified body to environment variable\r",
+              "pm.environment.set(\"graphqlBody\", JSON.stringify(requestBody));\r",
+              ""
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{{graphqlBody}}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/graphql",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "graphql"
+          ]
+        }
+      },
+      "response": []
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "packages": {},
+        "requests": {},
+        "exec": [
+          ""
+        ]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "packages": {},
+        "requests": {},
+        "exec": [
+          ""
+        ]
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "",
+      "type": "default"
+    }
+  ]
+}

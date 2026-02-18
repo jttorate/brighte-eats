@@ -6,7 +6,7 @@ test("register mutation returns lead with services", async () => {
     email: "test@example.com",
     mobile: "123456",
     postcode: "0000",
-    services: ["DELIVERY"],
+    services: ["delivery"],
   };
   const prisma = {
     lead: {
@@ -20,5 +20,5 @@ test("register mutation returns lead with services", async () => {
 
   const result = await resolvers.Mutation.register(null, args, { prisma });
   expect(result.name).toBe("Test");
-  expect(JSON.parse(result.services)).toContain("DELIVERY");
+  expect(JSON.parse(result.services)).toContain("delivery");
 });

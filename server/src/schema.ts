@@ -2,9 +2,9 @@ import { gql } from "apollo-server-express";
 
 export const typeDefs = gql`
   enum Service {
-    DELIVERY
-    PICKUP
-    PAYMENT
+    delivery
+    "pick-up"
+    payment
   }
 
   type Lead {

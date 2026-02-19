@@ -1,3 +1,4 @@
+import "./App.css";
 import Register from "./components/Register";
 import Dashboard from "./components/Dashboard";
 

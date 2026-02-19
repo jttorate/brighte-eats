@@ -32,7 +32,7 @@ const Register: React.FC<RegisterProps> = ({
     postcode: "",
     services: [],
   });
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   const isViewMode = !!selectedLead;
@@ -148,8 +148,12 @@ const Register: React.FC<RegisterProps> = ({
         <h2 className="mb-4 col-8 float-start">
           {isViewMode ? "View Lead" : "Register"}
         </h2>
-        <div className="col-4 float-end text-end pt-3">
-          {loading && <p>...loading</p>}
+        <div className="col-4 float-end text-end pt-1">
+          {loading && (
+            <div className="spinner-border text-primary">
+              <span className="visually-hidden">Loading...</span>
+            </div>
+          )}
           {error && <p className="text-danger">{error}</p>}
         </div>
       </div>

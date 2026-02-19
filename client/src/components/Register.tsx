@@ -144,9 +144,15 @@ const Register: React.FC<RegisterProps> = ({
 
   return (
     <div>
-      <h2 className="mb-4">{isViewMode ? "View Lead" : "Register"}</h2>
-      {loading && <p>Loading...</p>}
-      {error && <p className="text-danger">{error}</p>}
+      <div className="clearfix">
+        <h2 className="mb-4 col-8 float-start">
+          {isViewMode ? "View Lead" : "Register"}
+        </h2>
+        <div className="col-4 float-end text-end pt-3">
+          {loading && <p>loading ...</p>}
+          {error && <p className="text-danger">{error}</p>}
+        </div>
+      </div>
 
       <form onSubmit={handleSubmit}>
         {["name", "email", "mobile", "postcode"].map((field) => (

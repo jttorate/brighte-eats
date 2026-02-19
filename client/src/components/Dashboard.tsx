@@ -151,7 +151,7 @@ const Dashboard: React.FC<DashboardProps> = ({
                         handleServiceToggle(service as ServiceKey)
                       }
                     />
-                    <label className="form-check-label text-capitalize">
+                    <label className="form-check-label">
                       {serviceOptions[service as ServiceKey]}
                     </label>
                   </div>

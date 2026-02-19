@@ -62,6 +62,11 @@ client/
 └─ vite.config.ts
 ```
 
+## Environment Setup
+
+- Rename .env.example → .env
+- Open the file and update the required variables
+
 ## How to Run the Project
 
 This project has three main components:

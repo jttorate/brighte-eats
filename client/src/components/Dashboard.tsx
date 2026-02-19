@@ -113,7 +113,7 @@ const Dashboard: React.FC<DashboardProps> = ({
 
   if (loading)
     return (
-      <div className="spinner-border text-primary">
+      <div className="spinner-border text-primary mt-1">
         <span className="visually-hidden">Loading...</span>
       </div>
     );

@@ -29,7 +29,7 @@ Make sure you have these installed:
 
 - Node.js (v18+ recommended) → https://nodejs.org/
 - PostgreSQL → https://www.postgresql.org/download/
-- Git (for GitHub)
+- Git (for GitHub) → https://git-scm.com/install/
 
 ## Project Structure
 

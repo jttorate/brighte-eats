@@ -45,6 +45,7 @@ server/
 │ ├── schema.ts
 ├── tests/
 │ └── register.test     # Jest unit test
+├── .env.example        # .env template
 ├── jest.config
 ├── package.json
 └── tsconfig.json
@@ -58,6 +59,7 @@ client/
 │ ├─ components/        # Register & dashboard components
 │ ├─ App.tsx            # Main React app
 │ └─ main.tsx           # React entry point
+├── .env.example        # .env template
 ├─ package.json
 └─ vite.config.ts
 ```

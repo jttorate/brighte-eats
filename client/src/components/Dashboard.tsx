@@ -111,7 +111,12 @@ const Dashboard: React.FC<DashboardProps> = ({
     setCurrentPage(1);
   };
 
-  if (loading) return <p>Loading leads...</p>;
+  if (loading)
+    return (
+      <div className="spinner-border text-primary">
+        <span className="visually-hidden">Loading...</span>
+      </div>
+    );
   if (error) return <p className="text-danger">{error}</p>;
 
   return (

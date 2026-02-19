@@ -7,12 +7,25 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum Service {
+  delivery
+  pick_up
+  payment
+}
+
 model Lead {
-  id        Int      @id @default(autoincrement())
+  id        Int           @id @default(autoincrement())
   name      String
   email     String
   mobile    String
   postcode  String
-  services  String // ["delivery", "pick_up", "payment"]
-  createdAt DateTime @default(now())
+  createdAt DateTime      @default(now())
+  services  LeadService[]
+}
+
+model LeadService {
+  id      Int     @id @default(autoincrement())
+  lead    Lead    @relation(fields: [leadId], references: [id])
+  leadId  Int
+  service Service
 }

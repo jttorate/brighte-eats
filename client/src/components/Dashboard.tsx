@@ -16,14 +16,15 @@ interface Lead {
   mobile: string;
   postcode: string;
   services: ServiceKey[];
+  createdAt: string;
 }
 
 interface DashboardProps {
   serviceOptions: Record<ServiceKey, string>;
-  refreshKey?: number; // trigger refresh from parent
+  refreshKey?: number;
 }
 
-const GRAPHQL_ENDPOINT = import.meta.env.VITE_GRAPHQL_ENDPOINT;
+const GRAPHQL_ENDPOINT = import.meta.env.VITE_GRAPHQL_ENDPOINT!;
 if (!GRAPHQL_ENDPOINT) throw new Error("VITE_GRAPHQL_ENDPOINT is not defined");
 
 const Dashboard: React.FC<DashboardProps> = ({
@@ -35,6 +36,10 @@ const Dashboard: React.FC<DashboardProps> = ({
   const [error, setError] = useState<string | null>(null);
   const [showTable, setShowTable] = useState(false);
   const [selectedServices, setSelectedServices] = useState<ServiceKey[]>([]);
+
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(5);
 
   const fetchLeads = async () => {
     setLoading(true);
@@ -49,22 +54,26 @@ const Dashboard: React.FC<DashboardProps> = ({
           mobile
           postcode
           services
+          createdAt
         }
       }
     `;
 
     try {
-      const response = await fetch(GRAPHQL_ENDPOINT, {
+      const res = await fetch(GRAPHQL_ENDPOINT, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ query }),
       });
+      const result = await res.json();
 
-      const result = await response.json();
       if (result.errors) {
         setError(result.errors[0]?.message || "GraphQL error");
       } else {
-        setLeads(result.data.leads);
+        const sortedLeads = result.data.leads.sort(
+          (a: Lead, b: Lead) => Number(b.createdAt) - Number(a.createdAt), // Descending
+        );
+        setLeads(sortedLeads);
       }
     } catch (err) {
       setError("Network error. Please try again.");
@@ -73,39 +82,25 @@ const Dashboard: React.FC<DashboardProps> = ({
     }
   };
 
-  // fetch initially + whenever refreshKey changes
   useEffect(() => {
     fetchLeads();
   }, [refreshKey]);
 
-  // Compute service counts for chart
-  const serviceCounts: Record<ServiceKey, number> = Object.keys(
-    serviceOptions,
-  ).reduce(
-    (acc, key) => {
-      acc[key as ServiceKey] = 0;
-      return acc;
-    },
-    {} as Record<ServiceKey, number>,
-  );
-
-  leads.forEach((lead) =>
-    lead.services.forEach(
-      (s) => (serviceCounts[s] = (serviceCounts[s] || 0) + 1),
-    ),
-  );
-
-  const chartData = Object.entries(serviceOptions).map(([key, label]) => ({
-    name: label,
-    count: serviceCounts[key as ServiceKey],
-  }));
-
+  // Compute filtered leads
   const filteredLeads = useMemo(() => {
-    if (selectedServices.length === 0) return leads;
-    return leads.filter((lead) =>
-      selectedServices.some((s) => lead.services.includes(s)),
-    );
-  }, [selectedServices, leads]);
+    return selectedServices.length > 0
+      ? leads.filter((lead) =>
+          selectedServices.some((s) => lead.services.includes(s)),
+        )
+      : leads;
+  }, [leads, selectedServices]);
+
+  // Pagination
+  const totalPages = Math.ceil(filteredLeads.length / pageSize);
+  const paginatedLeads = filteredLeads.slice(
+    (currentPage - 1) * pageSize,
+    currentPage * pageSize,
+  );
 
   const handleServiceToggle = (service: ServiceKey) => {
     setSelectedServices((prev) =>
@@ -113,6 +108,7 @@ const Dashboard: React.FC<DashboardProps> = ({
         ? prev.filter((s) => s !== service)
         : [...prev, service],
     );
+    setCurrentPage(1); // Reset to first page when filter changes
   };
 
   if (loading) return <p>Loading leads...</p>;
@@ -139,6 +135,7 @@ const Dashboard: React.FC<DashboardProps> = ({
       <div className="flex-grow-1 overflow-auto">
         {showTable ? (
           <>
+            {/* Filter */}
             <div className="mb-3">
               <label className="form-label fw-bold">Filter by Services</label>
               <div className="d-flex gap-3">
@@ -161,6 +158,26 @@ const Dashboard: React.FC<DashboardProps> = ({
               </div>
             </div>
 
+            {/* Page size */}
+            <div className="mb-3 d-flex align-items-center gap-3">
+              <label>Rows per page:</label>
+              <select
+                className="form-select w-auto"
+                value={pageSize}
+                onChange={(e) => {
+                  setPageSize(Number(e.target.value));
+                  setCurrentPage(1); // Reset to first page
+                }}
+              >
+                {[5, 10, 20, 50].map((n) => (
+                  <option key={n} value={n}>
+                    {n}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {/* Table */}
             <div className="table-responsive">
               <table className="table table-bordered table-striped">
                 <thead className="table-light">
@@ -178,7 +195,7 @@ const Dashboard: React.FC<DashboardProps> = ({
                   </tr>
                 </thead>
                 <tbody>
-                  {filteredLeads.map((lead) => (
+                  {paginatedLeads.map((lead) => (
                     <tr key={lead.id}>
                       <td>{lead.id}</td>
                       <td>{lead.name}</td>
@@ -194,7 +211,7 @@ const Dashboard: React.FC<DashboardProps> = ({
                   ))}
 
                   {/* Total row */}
-                  {filteredLeads.length > 0 && (
+                  {paginatedLeads.length > 0 && (
                     <tr className="table-secondary fw-bold">
                       <td colSpan={5}>Total Leads: {filteredLeads.length}</td>
                       {Object.keys(serviceOptions).map((s) => (
@@ -210,17 +227,46 @@ const Dashboard: React.FC<DashboardProps> = ({
                   )}
                 </tbody>
               </table>
-              {filteredLeads.length === 0 && (
-                <p className="text-muted mt-3">
-                  No leads match selected filters.
-                </p>
-              )}
+            </div>
+
+            {/* Pagination controls */}
+            <div className="d-flex justify-content-between align-items-center mt-3">
+              <div>
+                Page {currentPage} of {totalPages}
+              </div>
+              <div>
+                <button
+                  className="btn btn-secondary me-2"
+                  onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
+                  disabled={currentPage === 1}
+                >
+                  Prev
+                </button>
+                <button
+                  className="btn btn-secondary"
+                  onClick={() =>
+                    setCurrentPage((p) => Math.min(p + 1, totalPages))
+                  }
+                  disabled={currentPage === totalPages}
+                >
+                  Next
+                </button>
+              </div>
             </div>
           </>
         ) : (
           <div style={{ width: "100%", height: 500 }}>
             <ResponsiveContainer>
-              <BarChart data={chartData}>
+              <BarChart
+                data={Object.entries(serviceOptions).map(([key, label]) => {
+                  const count = filteredLeads.reduce(
+                    (acc, lead) =>
+                      acc + (lead.services.includes(key as ServiceKey) ? 1 : 0),
+                    0,
+                  );
+                  return { name: label, count };
+                })}
+              >
                 <XAxis dataKey="name" />
                 <YAxis />
                 <Tooltip />

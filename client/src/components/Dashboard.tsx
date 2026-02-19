@@ -7,8 +7,7 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from "recharts";
-
-type ServiceKey = "delivery" | "pickup" | "payment";
+import type { ServiceKey } from "../App";
 
 interface User {
   id: number;
@@ -17,6 +16,10 @@ interface User {
   mobile: string;
   postcode: string;
   services: ServiceKey[];
+}
+
+interface DashboardProps {
+  serviceOptions: Record<ServiceKey, string>;
 }
 
 const users: User[] = [
@@ -54,33 +57,32 @@ const users: User[] = [
   },
 ];
 
-const Dashboard: React.FC = () => {
-  const [showTable, setShowTable] = useState<boolean>(false);
+const Dashboard: React.FC<DashboardProps> = ({ serviceOptions }) => {
+  const [showTable, setShowTable] = useState(false);
   const [selectedServices, setSelectedServices] = useState<ServiceKey[]>([]);
 
-  const serviceCounts = {
-    delivery: 0,
-    pickup: 0,
-    payment: 0,
-  };
+  // Initialize counts dynamically from serviceOptions keys
+  const serviceCounts: Record<ServiceKey, number> = Object.keys(
+    serviceOptions,
+  ).reduce(
+    (acc, key) => {
+      acc[key as ServiceKey] = 0;
+      return acc;
+    },
+    {} as Record<ServiceKey, number>,
+  );
 
-  users.forEach((user) => {
-    user.services.forEach((service) => {
-      serviceCounts[service]++;
-    });
-  });
+  users.forEach((user) => user.services.forEach((s) => serviceCounts[s]++));
 
-  const chartData = [
-    { name: "Delivery", count: serviceCounts.delivery },
-    { name: "Pick-up", count: serviceCounts.pickup },
-    { name: "Payment", count: serviceCounts.payment },
-  ];
+  const chartData = Object.entries(serviceOptions).map(([key, label]) => ({
+    name: label,
+    count: serviceCounts[key as ServiceKey],
+  }));
 
   const filteredUsers = useMemo(() => {
     if (selectedServices.length === 0) return users;
-
     return users.filter((user) =>
-      selectedServices.some((service) => user.services.includes(service)),
+      selectedServices.some((s) => user.services.includes(s)),
     );
   }, [selectedServices]);
 
@@ -94,10 +96,8 @@ const Dashboard: React.FC = () => {
 
   return (
     <div className="w-100" style={{ height: "85vh" }}>
-      {/* Header */}
-      <div className="d-flex justify-content-between align-items-center mb-3">
+      <div className="d-flex justify-content-between align-items-center mb-4">
         <h2 className="mb-4">Dashboard</h2>
-
         <div className="form-check form-switch">
           <input
             className="form-check-input"
@@ -112,33 +112,31 @@ const Dashboard: React.FC = () => {
         </div>
       </div>
 
-      {/* Content */}
       <div className="flex-grow-1 overflow-auto">
         {showTable ? (
           <>
             <div className="mb-3">
               <label className="form-label fw-bold">Filter by Services</label>
-
               <div className="d-flex gap-3">
-                {(["delivery", "pickup", "payment"] as ServiceKey[]).map(
-                  (service) => (
-                    <div key={service} className="form-check">
-                      <input
-                        className="form-check-input"
-                        type="checkbox"
-                        checked={selectedServices.includes(service)}
-                        onChange={() => handleServiceToggle(service)}
-                        id={service}
-                      />
-                      <label
-                        className="form-check-label text-capitalize"
-                        htmlFor={service}
-                      >
-                        {service}
-                      </label>
-                    </div>
-                  ),
-                )}
+                {Object.keys(serviceOptions).map((service) => (
+                  <div className="form-check" key={service}>
+                    <input
+                      className="form-check-input"
+                      type="checkbox"
+                      checked={selectedServices.includes(service as ServiceKey)}
+                      onChange={() =>
+                        handleServiceToggle(service as ServiceKey)
+                      }
+                      id={service}
+                    />
+                    <label
+                      className="form-check-label text-capitalize"
+                      htmlFor={service}
+                    >
+                      {serviceOptions[service as ServiceKey]}
+                    </label>
+                  </div>
+                ))}
               </div>
             </div>
 
@@ -162,12 +160,13 @@ const Dashboard: React.FC = () => {
                       <td>{user.email}</td>
                       <td>{user.mobile}</td>
                       <td>{user.postcode}</td>
-                      <td>{user.services.join(", ")}</td>
+                      <td>
+                        {user.services.map((s) => serviceOptions[s]).join(", ")}
+                      </td>
                     </tr>
                   ))}
                 </tbody>
               </table>
-
               {filteredUsers.length === 0 && (
                 <p className="text-muted mt-3">
                   No users match selected filters.

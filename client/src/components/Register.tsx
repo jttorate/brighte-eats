@@ -1,21 +1,19 @@
 import React, { useState } from "react";
+import type { ServiceKey } from "../App";
 
 interface FormData {
   name: string;
   email: string;
   mobile: string;
   postcode: string;
-  services: string[]; // store keys only
+  services: ServiceKey[];
 }
 
-// Services as key-value pairs
-const serviceOptions: Record<string, string> = {
-  delivery: "Delivery",
-  pick_up: "Pick-up",
-  payment: "Payment",
-};
+interface RegisterProps {
+  serviceOptions: Record<ServiceKey, string>;
+}
 
-const Register: React.FC = () => {
+const Register: React.FC<RegisterProps> = ({ serviceOptions }) => {
   const [formData, setFormData] = useState<FormData>({
     name: "",
     email: "",
@@ -30,19 +28,20 @@ const Register: React.FC = () => {
   };
 
   const handleCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { value: key, checked } = e.target;
+    const { value, checked } = e.target;
+    const key = value as ServiceKey;
+
     setFormData((prev) => ({
       ...prev,
       services: checked
         ? [...prev.services, key]
-        : prev.services.filter((serviceKey) => serviceKey !== key),
+        : prev.services.filter((s) => s !== key),
     }));
   };
 
   const handleSubmit = (e: React.SyntheticEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const payload = { ...formData, services: formData.services };
-    console.log("Form Submitted:", payload);
+    console.log("Form Submitted:", formData);
     alert("Registration Successful!");
   };
 
@@ -50,65 +49,22 @@ const Register: React.FC = () => {
     <div>
       <h2 className="mb-4">Register</h2>
       <form onSubmit={handleSubmit}>
-        <div className="mb-3">
-          <label htmlFor="name" className="form-label">
-            Name
-          </label>
-          <input
-            type="text"
-            className="form-control"
-            id="name"
-            name="name"
-            value={formData.name}
-            onChange={handleChange}
-            required
-          />
-        </div>
-
-        <div className="mb-3">
-          <label htmlFor="email" className="form-label">
-            Email
-          </label>
-          <input
-            type="email"
-            className="form-control"
-            id="email"
-            name="email"
-            value={formData.email}
-            onChange={handleChange}
-            required
-          />
-        </div>
-
-        <div className="mb-3">
-          <label htmlFor="mobile" className="form-label">
-            Mobile
-          </label>
-          <input
-            type="tel"
-            className="form-control"
-            id="mobile"
-            name="mobile"
-            value={formData.mobile}
-            onChange={handleChange}
-            required
-          />
-        </div>
-
-        <div className="mb-3">
-          <label htmlFor="postcode" className="form-label">
-            Postcode
-          </label>
-          <input
-            type="text"
-            className="form-control"
-            id="postcode"
-            name="postcode"
-            value={formData.postcode}
-            onChange={handleChange}
-            required
-          />
-        </div>
+        {["name", "email", "mobile", "postcode"].map((field) => (
+          <div className="mb-3" key={field}>
+            <label htmlFor={field} className="form-label">
+              {field.charAt(0).toUpperCase() + field.slice(1)}
+            </label>
+            <input
+              type={field === "email" ? "email" : "text"}
+              className="form-control"
+              id={field}
+              name={field}
+              value={formData[field as keyof FormData] as string}
+              onChange={handleChange}
+              required
+            />
+          </div>
+        ))}
 
         <div className="mb-3">
           <label className="form-label">Services</label>
@@ -118,7 +74,7 @@ const Register: React.FC = () => {
                 className="form-check-input"
                 type="checkbox"
                 value={key}
-                checked={formData.services.includes(key)}
+                checked={formData.services.includes(key as ServiceKey)}
                 onChange={handleCheckboxChange}
                 id={key}
               />

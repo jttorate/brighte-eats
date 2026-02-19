@@ -111,13 +111,20 @@ const Dashboard: React.FC<DashboardProps> = ({
     setCurrentPage(1);
   };
 
-  if (loading)
+  if (loading || error) {
     return (
-      <div className="spinner-border text-primary mt-1">
-        <span className="visually-hidden">Loading...</span>
+      <div className="d-flex justify-content-center align-items-center h-100">
+        {loading ? (
+          <div className="d-flex align-items-center">
+            <div className="spinner-border text-primary me-2"></div>
+            <span>Please wait...</span>
+          </div>
+        ) : (
+          <p className="text-danger mt-3">{error}</p>
+        )}
       </div>
     );
-  if (error) return <p className="text-danger">{error}</p>;
+  }
 
   return (
     <div className="w-100" style={{ height: "85vh" }}>
@@ -220,6 +227,15 @@ const Dashboard: React.FC<DashboardProps> = ({
                     </tr>
                   ))}
 
+                  {/* No records row */}
+                  {totalPages === 0 ? (
+                    <tr>
+                      <td colSpan={6 + Object.keys(serviceOptions).length}>
+                        No records found.
+                      </td>
+                    </tr>
+                  ) : null}
+
                   {/* Total row */}
                   {paginatedLeads.length > 0 && (
                     <tr className="table-secondary fw-bold">
@@ -241,29 +257,31 @@ const Dashboard: React.FC<DashboardProps> = ({
             </div>
 
             {/* Pagination controls */}
-            <div className="d-flex justify-content-between align-items-center mt-3">
-              <div>
-                Page {currentPage} of {totalPages}
+            {totalPages > 0 ? (
+              <div className="d-flex justify-content-between align-items-center mt-3">
+                <div>
+                  Page {currentPage} of {totalPages}
+                </div>
+                <div>
+                  <button
+                    className="btn btn-secondary me-2"
+                    onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
+                    disabled={currentPage === 1}
+                  >
+                    Prev
+                  </button>
+                  <button
+                    className="btn btn-secondary"
+                    onClick={() =>
+                      setCurrentPage((p) => Math.min(p + 1, totalPages))
+                    }
+                    disabled={currentPage === totalPages}
+                  >
+                    Next
+                  </button>
+                </div>
               </div>
-              <div>
-                <button
-                  className="btn btn-secondary me-2"
-                  onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
-                  disabled={currentPage === 1}
-                >
-                  Prev
-                </button>
-                <button
-                  className="btn btn-secondary"
-                  onClick={() =>
-                    setCurrentPage((p) => Math.min(p + 1, totalPages))
-                  }
-                  disabled={currentPage === totalPages}
-                >
-                  Next
-                </button>
-              </div>
-            </div>
+            ) : null}
           </>
         )}
 

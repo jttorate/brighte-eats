@@ -22,6 +22,7 @@ interface Lead {
 interface DashboardProps {
   serviceOptions: Record<ServiceKey, string>;
   refreshKey?: number;
+  onViewLead?: (leadId: number) => void; // only pass lead ID now
 }
 
 const GRAPHQL_ENDPOINT = import.meta.env.VITE_GRAPHQL_ENDPOINT!;
@@ -30,6 +31,7 @@ if (!GRAPHQL_ENDPOINT) throw new Error("VITE_GRAPHQL_ENDPOINT is not defined");
 const Dashboard: React.FC<DashboardProps> = ({
   serviceOptions,
   refreshKey,
+  onViewLead,
 }) => {
   const [leads, setLeads] = useState<Lead[]>([]);
   const [loading, setLoading] = useState(false);
@@ -71,8 +73,8 @@ const Dashboard: React.FC<DashboardProps> = ({
         setError(result.errors[0]?.message || "GraphQL error");
       } else {
         const sortedLeads = result.data.leads.sort(
-          (a: Lead, b: Lead) => Number(b.createdAt) - Number(a.createdAt), // Descending
-        );
+          (a: Lead, b: Lead) => Number(b.createdAt) - Number(a.createdAt),
+        ); // Descending
         setLeads(sortedLeads);
       }
     } catch (err) {
@@ -86,7 +88,6 @@ const Dashboard: React.FC<DashboardProps> = ({
     fetchLeads();
   }, [refreshKey]);
 
-  // Compute filtered leads
   const filteredLeads = useMemo(() => {
     return selectedServices.length > 0
       ? leads.filter((lead) =>
@@ -95,7 +96,6 @@ const Dashboard: React.FC<DashboardProps> = ({
       : leads;
   }, [leads, selectedServices]);
 
-  // Pagination
   const totalPages = Math.ceil(filteredLeads.length / pageSize);
   const paginatedLeads = filteredLeads.slice(
     (currentPage - 1) * pageSize,
@@ -108,7 +108,7 @@ const Dashboard: React.FC<DashboardProps> = ({
         ? prev.filter((s) => s !== service)
         : [...prev, service],
     );
-    setCurrentPage(1); // Reset to first page when filter changes
+    setCurrentPage(1);
   };
 
   if (loading) return <p>Loading leads...</p>;
@@ -124,16 +124,13 @@ const Dashboard: React.FC<DashboardProps> = ({
             type="checkbox"
             checked={showTable}
             onChange={() => setShowTable(!showTable)}
-            id="toggleTable"
           />
-          <label className="form-check-label" htmlFor="toggleTable">
-            Show Raw Data
-          </label>
+          <label className="form-check-label">Show Raw Data</label>
         </div>
       </div>
 
       <div className="flex-grow-1 overflow-auto">
-        {showTable ? (
+        {showTable && (
           <>
             {/* Filter */}
             <div className="mb-3">
@@ -148,7 +145,6 @@ const Dashboard: React.FC<DashboardProps> = ({
                       onChange={() =>
                         handleServiceToggle(service as ServiceKey)
                       }
-                      id={service}
                     />
                     <label className="form-check-label text-capitalize">
                       {serviceOptions[service as ServiceKey]}
@@ -166,7 +162,7 @@ const Dashboard: React.FC<DashboardProps> = ({
                 value={pageSize}
                 onChange={(e) => {
                   setPageSize(Number(e.target.value));
-                  setCurrentPage(1); // Reset to first page
+                  setCurrentPage(1);
                 }}
               >
                 {[5, 10, 20, 50].map((n) => (
@@ -192,6 +188,7 @@ const Dashboard: React.FC<DashboardProps> = ({
                         {serviceOptions[s as ServiceKey]}
                       </th>
                     ))}
+                    <th>Actions</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -207,6 +204,14 @@ const Dashboard: React.FC<DashboardProps> = ({
                           {lead.services.includes(s as ServiceKey) ? "✔" : ""}
                         </td>
                       ))}
+                      <td className="text-center">
+                        <button
+                          className="btn btn-sm btn-primary"
+                          onClick={() => onViewLead?.(lead.id)} // only pass ID
+                        >
+                          View
+                        </button>
+                      </td>
                     </tr>
                   ))}
 
@@ -223,6 +228,7 @@ const Dashboard: React.FC<DashboardProps> = ({
                           }
                         </td>
                       ))}
+                      <td></td>
                     </tr>
                   )}
                 </tbody>
@@ -254,7 +260,9 @@ const Dashboard: React.FC<DashboardProps> = ({
               </div>
             </div>
           </>
-        ) : (
+        )}
+
+        {!showTable && (
           <div style={{ width: "100%", height: 500 }}>
             <ResponsiveContainer>
               <BarChart

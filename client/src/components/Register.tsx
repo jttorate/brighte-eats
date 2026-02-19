@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import type { ServiceKey } from "../App";
 
 interface FormData {
@@ -11,14 +11,20 @@ interface FormData {
 
 interface RegisterProps {
   serviceOptions: Record<ServiceKey, string>;
-  onSuccess?: () => void; // callback to refresh dashboard
+  selectedLead?: number; // now leadId
+  onClearView?: () => void;
+  onSuccess?: () => void;
 }
 
-// Vite environment variable for GraphQL endpoint
-const GRAPHQL_ENDPOINT = import.meta.env.VITE_GRAPHQL_ENDPOINT;
+const GRAPHQL_ENDPOINT = import.meta.env.VITE_GRAPHQL_ENDPOINT!;
 if (!GRAPHQL_ENDPOINT) throw new Error("VITE_GRAPHQL_ENDPOINT is not defined");
 
-const Register: React.FC<RegisterProps> = ({ serviceOptions, onSuccess }) => {
+const Register: React.FC<RegisterProps> = ({
+  serviceOptions,
+  selectedLead,
+  onClearView,
+  onSuccess,
+}) => {
   const [formData, setFormData] = useState<FormData>({
     name: "",
     email: "",
@@ -29,25 +35,61 @@ const Register: React.FC<RegisterProps> = ({ serviceOptions, onSuccess }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
-  };
+  const isViewMode = !!selectedLead;
 
-  const handleCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { value, checked } = e.target;
-    const key = value as ServiceKey;
-
-    setFormData((prev) => ({
-      ...prev,
-      services: checked
-        ? [...prev.services, key]
-        : prev.services.filter((s) => s !== key),
-    }));
-  };
+  // Fetch lead details when viewing
+  useEffect(() => {
+    if (selectedLead) {
+      setLoading(true);
+      const query = `
+        query {
+          lead(id: ${selectedLead}) {
+            id
+            name
+            email
+            mobile
+            postcode
+            services
+            createdAt
+          }
+        }
+      `;
+      fetch(GRAPHQL_ENDPOINT, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ query }),
+      })
+        .then((res) => res.json())
+        .then((result) => {
+          const lead = result.data?.lead;
+          if (lead) {
+            setFormData({
+              name: lead.name,
+              email: lead.email,
+              mobile: lead.mobile,
+              postcode: lead.postcode,
+              services: lead.services,
+            });
+          } else {
+            setError("Lead not found");
+          }
+        })
+        .catch(() => setError("Network error"))
+        .finally(() => setLoading(false));
+    } else {
+      setFormData({
+        name: "",
+        email: "",
+        mobile: "",
+        postcode: "",
+        services: [],
+      });
+    }
+  }, [selectedLead]);
 
   const handleSubmit = async (e: React.SyntheticEvent<HTMLFormElement>) => {
     e.preventDefault();
+    if (isViewMode) return;
     setLoading(true);
     setError(null);
 
@@ -73,19 +115,14 @@ const Register: React.FC<RegisterProps> = ({ serviceOptions, onSuccess }) => {
           }
         }
       `;
-
       const variables = { ...formData };
-
-      const response = await fetch(GRAPHQL_ENDPOINT, {
+      const res = await fetch(GRAPHQL_ENDPOINT, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ query: mutation, variables }),
       });
-
-      const result = await response.json();
-
+      const result = await res.json();
       if (result.errors) {
-        console.error(result.errors);
         setError(result.errors[0]?.message || "GraphQL error");
       } else {
         alert("Registration Successful!");
@@ -96,12 +133,9 @@ const Register: React.FC<RegisterProps> = ({ serviceOptions, onSuccess }) => {
           postcode: "",
           services: [],
         });
-
-        // Trigger dashboard refresh
         onSuccess?.();
       }
     } catch (err) {
-      console.error(err);
       setError("Network error. Please try again.");
     } finally {
       setLoading(false);
@@ -110,7 +144,8 @@ const Register: React.FC<RegisterProps> = ({ serviceOptions, onSuccess }) => {
 
   return (
     <div>
-      <h2 className="mb-4">Register</h2>
+      <h2 className="mb-4">{isViewMode ? "View Lead" : "Register"}</h2>
+      {loading && <p>Loading...</p>}
       {error && <p className="text-danger">{error}</p>}
 
       <form onSubmit={handleSubmit}>
@@ -125,8 +160,11 @@ const Register: React.FC<RegisterProps> = ({ serviceOptions, onSuccess }) => {
               id={field}
               name={field}
               value={formData[field as keyof FormData] as string}
-              onChange={handleChange}
+              onChange={(e) =>
+                setFormData((prev) => ({ ...prev, [field]: e.target.value }))
+              }
               required
+              disabled={isViewMode || loading}
             />
           </div>
         ))}
@@ -138,25 +176,44 @@ const Register: React.FC<RegisterProps> = ({ serviceOptions, onSuccess }) => {
               <input
                 className="form-check-input"
                 type="checkbox"
-                value={key} // must match GraphQL enum exactly
+                value={key}
                 checked={formData.services.includes(key as ServiceKey)}
-                onChange={handleCheckboxChange}
-                id={key}
+                onChange={(e) => {
+                  const checked = e.target.checked;
+                  const keyEnum = key as ServiceKey;
+                  setFormData((prev) => ({
+                    ...prev,
+                    services: checked
+                      ? [...prev.services, keyEnum]
+                      : prev.services.filter((s) => s !== keyEnum),
+                  }));
+                }}
+                disabled={isViewMode || loading}
               />
-              <label className="form-check-label" htmlFor={key}>
-                {label}
-              </label>
+              <label className="form-check-label">{label}</label>
             </div>
           ))}
         </div>
 
-        <button
-          type="submit"
-          className="btn btn-primary mt-3"
-          disabled={loading}
-        >
-          {loading ? "Submitting..." : "Register"}
-        </button>
+        {!isViewMode && (
+          <button
+            type="submit"
+            className="btn btn-primary mt-3"
+            disabled={loading}
+          >
+            {loading ? "Submitting..." : "Register"}
+          </button>
+        )}
+
+        {isViewMode && (
+          <button
+            type="button"
+            className="btn btn-secondary mt-3"
+            onClick={onClearView}
+          >
+            Close View
+          </button>
+        )}
       </form>
     </div>
   );

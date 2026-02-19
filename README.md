@@ -86,3 +86,21 @@ npm run dev         # run React development server
 ## Live Demo
 
 #### Visit the live demo here: https://brighte-eats-demo.jttorate.com
+
+## User Guide
+
+1. Register (New Lead)
+   - Fill out the form with Name, Email, Mobile, Postcode, and select one or more Services (Delivery, Pick-up, Payment).
+   - Click Register to submit:
+     - Success alert appears. Form resets. Dashboard refreshes automatically.
+   - Note: When viewing a lead, form fields are disabled and Submit is hidden.
+2. Dashboard Chart & Table (Get All Leads)
+   - Chart View (default when raw table is off):
+     - Shows total leads per service as a bar chart.
+     - Raw Table View (toggle via Show Raw Data):
+       - Filter by Services: Show leads matching selected services.
+3. View Lead (Get Single Lead)
+   - Click View on any lead in the table:
+     - Form on the left panel populates with the lead’s information.
+     - Click Close View to exit and return to the blank registration form.
+   - Only the lead ID is sent to fetch details from the backend.

@@ -31,6 +31,26 @@ Make sure you have these installed:
 - PostgreSQL → https://www.postgresql.org/download/
 - Git (for GitHub) → https://git-scm.com/install/
 
+## Clone This Repository
+
+Using HTTPS
+
+```bash
+git clone https://github.com/jttorate/brighte-eats.git
+```
+
+Using SSH
+
+```bash
+git clone git@github.com:jttorate/brighte-eats.git
+```
+
+Navigate into the project folder
+
+```bash
+cd brighte-eats
+```
+
 ## Project Structure
 
 #### Backend

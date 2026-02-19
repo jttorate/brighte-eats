@@ -37,7 +37,7 @@ const users: User[] = [
     email: "sarah@example.com",
     mobile: "654321",
     postcode: "1234",
-    services: ["pickup"],
+    services: ["pick_up"],
   },
   {
     id: 3,
@@ -53,7 +53,7 @@ const users: User[] = [
     email: "emma@example.com",
     mobile: "543534",
     postcode: "1234",
-    services: ["delivery", "pickup"],
+    services: ["delivery", "pick_up"],
   },
 ];
 

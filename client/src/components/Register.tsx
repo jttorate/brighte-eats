@@ -32,7 +32,7 @@ const Register: React.FC<RegisterProps> = ({
     postcode: "",
     services: [],
   });
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const isViewMode = !!selectedLead;

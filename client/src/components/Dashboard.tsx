@@ -97,7 +97,7 @@ const Dashboard: React.FC<DashboardProps> = ({ serviceOptions }) => {
   return (
     <div className="w-100" style={{ height: "85vh" }}>
       <div className="d-flex justify-content-between align-items-center mb-4">
-        <h2 className="mb-4">Dashboard</h2>
+        <h2 className="mb-5">Dashboard</h2>
         <div className="form-check form-switch">
           <input
             className="form-check-input"

@@ -13,6 +13,10 @@ interface RegisterProps {
   serviceOptions: Record<ServiceKey, string>;
 }
 
+// Use Vite env variable
+const GRAPHQL_ENDPOINT = import.meta.env.VITE_GRAPHQL_ENDPOINT;
+if (!GRAPHQL_ENDPOINT) throw new Error("VITE_GRAPHQL_ENDPOINT is not defined");
+
 const Register: React.FC<RegisterProps> = ({ serviceOptions }) => {
   const [formData, setFormData] = useState<FormData>({
     name: "",
@@ -21,6 +25,9 @@ const Register: React.FC<RegisterProps> = ({ serviceOptions }) => {
     postcode: "",
     services: [],
   });
+
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -39,15 +46,67 @@ const Register: React.FC<RegisterProps> = ({ serviceOptions }) => {
     }));
   };
 
-  const handleSubmit = (e: React.SyntheticEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.SyntheticEvent<HTMLFormElement>) => {
     e.preventDefault();
-    console.log("Form Submitted:", formData);
-    alert("Registration Successful!");
+    setLoading(true);
+    setError(null);
+
+    try {
+      // Use variables instead of string interpolation
+      const mutation = `
+        mutation Register($name: String!, $email: String!, $mobile: String!, $postcode: String!, $services: [String!]!) {
+          register(name: $name, email: $email, mobile: $mobile, postcode: $postcode, services: $services) {
+            id
+            name
+            services
+          }
+        }
+      `;
+
+      const variables = {
+        name: formData.name,
+        email: formData.email,
+        mobile: formData.mobile,
+        postcode: formData.postcode,
+        services: formData.services,
+      };
+
+      const response = await fetch(GRAPHQL_ENDPOINT, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ query: mutation, variables }),
+      });
+
+      const result = await response.json();
+
+      if (result.errors) {
+        console.error(result.errors);
+        setError(result.errors[0]?.message || "GraphQL error");
+      } else {
+        console.log("User registered:", result.data.register);
+        alert("Registration Successful!");
+        // Reset form
+        setFormData({
+          name: "",
+          email: "",
+          mobile: "",
+          postcode: "",
+          services: [],
+        });
+      }
+    } catch (err) {
+      console.error(err);
+      setError("Network error. Please try again.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
     <div>
       <h2 className="mb-4">Register</h2>
+      {error && <p className="text-danger">{error}</p>}
+
       <form onSubmit={handleSubmit}>
         {["name", "email", "mobile", "postcode"].map((field) => (
           <div className="mb-3" key={field}>
@@ -85,8 +144,12 @@ const Register: React.FC<RegisterProps> = ({ serviceOptions }) => {
           ))}
         </div>
 
-        <button type="submit" className="btn btn-primary mt-3">
-          Register
+        <button
+          type="submit"
+          className="btn btn-primary mt-3"
+          disabled={loading}
+        >
+          {loading ? "Submitting..." : "Register"}
         </button>
       </form>
     </div>

@@ -92,6 +92,23 @@ npm run dev               # run React development server
 
 ## Key Design Decisions & Tradeoffs
 
+1. React + Node.js + TypeScript
+
+- Type safety (fewer runtime bugs)
+- Clear interfaces (e.g., Lead, ServiceKey)
+- Tradeoff:
+  - Learning curve for types
+
+2. GraphQL Instead of REST
+
+- Fetch only required fields
+- Single endpoint
+- Easy to extend queries
+- Tradeoff:
+  - Query building inside frontend
+  - More complex setup than REST
+  - Slightly more complex TypeScript setup
+
 ## Live Demo
 
 #### Visit the live demo here: https://brighte-eats-demo.jttorate.com

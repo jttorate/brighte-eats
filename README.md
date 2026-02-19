@@ -128,8 +128,8 @@ npm run dev               # run React development server
 2. Dashboard Chart & Table (Get All Leads)
    - Chart View (default when raw table is off):
      - Shows total leads per service as a bar chart.
-     - Raw Table View (toggle via Show Raw Data):
-       - Filter by Services: Show leads matching selected services.
+   - Raw Table View (toggle via Show Raw Data):
+     - Filter by Services: Show leads matching selected services.
 3. View Lead (Get Single Lead)
    - Click View on any lead in the table:
      - Form on the left panel populates with the lead’s information.

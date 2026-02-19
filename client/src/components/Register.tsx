@@ -26,6 +26,9 @@ const Register: React.FC<RegisterProps> = ({ serviceOptions }) => {
     services: [],
   });
 
+  console.log(formData);
+  
+
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -52,10 +55,22 @@ const Register: React.FC<RegisterProps> = ({ serviceOptions }) => {
     setError(null);
 
     try {
-      // Use variables instead of string interpolation
+      // ✅ Updated mutation: use [Service!]! for enum array
       const mutation = `
-        mutation Register($name: String!, $email: String!, $mobile: String!, $postcode: String!, $services: [String!]!) {
-          register(name: $name, email: $email, mobile: $mobile, postcode: $postcode, services: $services) {
+        mutation Register(
+          $name: String!
+          $email: String!
+          $mobile: String!
+          $postcode: String!
+          $services: [Service!]!
+        ) {
+          register(
+            name: $name
+            email: $email
+            mobile: $mobile
+            postcode: $postcode
+            services: $services
+          ) {
             id
             name
             services
@@ -68,7 +83,7 @@ const Register: React.FC<RegisterProps> = ({ serviceOptions }) => {
         email: formData.email,
         mobile: formData.mobile,
         postcode: formData.postcode,
-        services: formData.services,
+        services: formData.services, // ✅ array of enum keys like ["delivery", "payment"]
       };
 
       const response = await fetch(GRAPHQL_ENDPOINT, {
@@ -132,7 +147,7 @@ const Register: React.FC<RegisterProps> = ({ serviceOptions }) => {
               <input
                 className="form-check-input"
                 type="checkbox"
-                value={key}
+                value={key} // ✅ must match enum name exactly
                 checked={formData.services.includes(key as ServiceKey)}
                 onChange={handleCheckboxChange}
                 id={key}

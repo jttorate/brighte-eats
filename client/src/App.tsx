@@ -5,7 +5,7 @@ import Dashboard from "./components/Dashboard";
 // Centralized services data
 export const SERVICE_OPTIONS = {
   delivery: "Delivery",
-  pickup: "Pick-up",
+  pick_up: "Pick-up",
   payment: "Payment",
 } as const; // "as const" preserves literal types
 

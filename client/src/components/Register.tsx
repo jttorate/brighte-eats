@@ -149,7 +149,7 @@ const Register: React.FC<RegisterProps> = ({
           {isViewMode ? "View Lead" : "Register"}
         </h2>
         <div className="col-4 float-end text-end pt-3">
-          {loading && <p>loading ...</p>}
+          {loading && <p>...loading</p>}
           {error && <p className="text-danger">{error}</p>}
         </div>
       </div>

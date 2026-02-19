@@ -26,9 +26,6 @@ const Register: React.FC<RegisterProps> = ({ serviceOptions }) => {
     services: [],
   });
 
-  console.log(formData);
-  
-
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 

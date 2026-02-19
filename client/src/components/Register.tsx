@@ -11,13 +11,14 @@ interface FormData {
 
 interface RegisterProps {
   serviceOptions: Record<ServiceKey, string>;
+  onSuccess?: () => void; // callback to refresh dashboard
 }
 
-// Use Vite env variable
+// Vite environment variable for GraphQL endpoint
 const GRAPHQL_ENDPOINT = import.meta.env.VITE_GRAPHQL_ENDPOINT;
 if (!GRAPHQL_ENDPOINT) throw new Error("VITE_GRAPHQL_ENDPOINT is not defined");
 
-const Register: React.FC<RegisterProps> = ({ serviceOptions }) => {
+const Register: React.FC<RegisterProps> = ({ serviceOptions, onSuccess }) => {
   const [formData, setFormData] = useState<FormData>({
     name: "",
     email: "",
@@ -25,7 +26,6 @@ const Register: React.FC<RegisterProps> = ({ serviceOptions }) => {
     postcode: "",
     services: [],
   });
-
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -52,7 +52,6 @@ const Register: React.FC<RegisterProps> = ({ serviceOptions }) => {
     setError(null);
 
     try {
-      // ✅ Updated mutation: use [Service!]! for enum array
       const mutation = `
         mutation Register(
           $name: String!
@@ -75,13 +74,7 @@ const Register: React.FC<RegisterProps> = ({ serviceOptions }) => {
         }
       `;
 
-      const variables = {
-        name: formData.name,
-        email: formData.email,
-        mobile: formData.mobile,
-        postcode: formData.postcode,
-        services: formData.services, // ✅ array of enum keys like ["delivery", "payment"]
-      };
+      const variables = { ...formData };
 
       const response = await fetch(GRAPHQL_ENDPOINT, {
         method: "POST",
@@ -95,9 +88,7 @@ const Register: React.FC<RegisterProps> = ({ serviceOptions }) => {
         console.error(result.errors);
         setError(result.errors[0]?.message || "GraphQL error");
       } else {
-        console.log("User registered:", result.data.register);
         alert("Registration Successful!");
-        // Reset form
         setFormData({
           name: "",
           email: "",
@@ -105,6 +96,9 @@ const Register: React.FC<RegisterProps> = ({ serviceOptions }) => {
           postcode: "",
           services: [],
         });
+
+        // Trigger dashboard refresh
+        onSuccess?.();
       }
     } catch (err) {
       console.error(err);
@@ -144,7 +138,7 @@ const Register: React.FC<RegisterProps> = ({ serviceOptions }) => {
               <input
                 className="form-check-input"
                 type="checkbox"
-                value={key} // ✅ must match enum name exactly
+                value={key} // must match GraphQL enum exactly
                 checked={formData.services.includes(key as ServiceKey)}
                 onChange={handleCheckboxChange}
                 id={key}

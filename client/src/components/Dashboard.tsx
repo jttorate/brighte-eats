@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import {
   BarChart,
   Bar,
@@ -9,7 +9,7 @@ import {
 } from "recharts";
 import type { ServiceKey } from "../App";
 
-interface User {
+interface Lead {
   id: number;
   name: string;
   email: string;
@@ -20,48 +20,65 @@ interface User {
 
 interface DashboardProps {
   serviceOptions: Record<ServiceKey, string>;
+  refreshKey?: number; // trigger refresh from parent
 }
 
-const users: User[] = [
-  {
-    id: 1,
-    name: "John",
-    email: "john@example.com",
-    mobile: "123456",
-    postcode: "0000",
-    services: ["delivery", "payment"],
-  },
-  {
-    id: 2,
-    name: "Sarah",
-    email: "sarah@example.com",
-    mobile: "654321",
-    postcode: "1234",
-    services: ["pick_up"],
-  },
-  {
-    id: 3,
-    name: "David",
-    email: "david@example.com",
-    mobile: "45768768",
-    postcode: "1234",
-    services: ["delivery"],
-  },
-  {
-    id: 4,
-    name: "Emma",
-    email: "emma@example.com",
-    mobile: "543534",
-    postcode: "1234",
-    services: ["delivery", "pick_up"],
-  },
-];
+const GRAPHQL_ENDPOINT = import.meta.env.VITE_GRAPHQL_ENDPOINT;
+if (!GRAPHQL_ENDPOINT) throw new Error("VITE_GRAPHQL_ENDPOINT is not defined");
 
-const Dashboard: React.FC<DashboardProps> = ({ serviceOptions }) => {
+const Dashboard: React.FC<DashboardProps> = ({
+  serviceOptions,
+  refreshKey,
+}) => {
+  const [leads, setLeads] = useState<Lead[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [showTable, setShowTable] = useState(false);
   const [selectedServices, setSelectedServices] = useState<ServiceKey[]>([]);
 
-  // Initialize counts dynamically from serviceOptions keys
+  const fetchLeads = async () => {
+    setLoading(true);
+    setError(null);
+
+    const query = `
+      query Leads {
+        leads {
+          id
+          name
+          email
+          mobile
+          postcode
+          services
+        }
+      }
+    `;
+
+    try {
+      const response = await fetch(GRAPHQL_ENDPOINT, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ query }),
+      });
+
+      const result = await response.json();
+      if (result.errors) {
+        setError(result.errors[0]?.message || "GraphQL error");
+      } else {
+        setLeads(result.data.leads);
+      }
+    } catch (err) {
+      setError("Network error. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // fetch initially + whenever refreshKey changes
+  useEffect(() => {
+    fetchLeads();
+  }, [refreshKey]);
+
+  // Compute service counts for chart
   const serviceCounts: Record<ServiceKey, number> = Object.keys(
     serviceOptions,
   ).reduce(
@@ -72,19 +89,23 @@ const Dashboard: React.FC<DashboardProps> = ({ serviceOptions }) => {
     {} as Record<ServiceKey, number>,
   );
 
-  users.forEach((user) => user.services.forEach((s) => serviceCounts[s]++));
+  leads.forEach((lead) =>
+    lead.services.forEach(
+      (s) => (serviceCounts[s] = (serviceCounts[s] || 0) + 1),
+    ),
+  );
 
   const chartData = Object.entries(serviceOptions).map(([key, label]) => ({
     name: label,
     count: serviceCounts[key as ServiceKey],
   }));
 
-  const filteredUsers = useMemo(() => {
-    if (selectedServices.length === 0) return users;
-    return users.filter((user) =>
-      selectedServices.some((s) => user.services.includes(s)),
+  const filteredLeads = useMemo(() => {
+    if (selectedServices.length === 0) return leads;
+    return leads.filter((lead) =>
+      selectedServices.some((s) => lead.services.includes(s)),
     );
-  }, [selectedServices]);
+  }, [selectedServices, leads]);
 
   const handleServiceToggle = (service: ServiceKey) => {
     setSelectedServices((prev) =>
@@ -93,6 +114,9 @@ const Dashboard: React.FC<DashboardProps> = ({ serviceOptions }) => {
         : [...prev, service],
     );
   };
+
+  if (loading) return <p>Loading leads...</p>;
+  if (error) return <p className="text-danger">{error}</p>;
 
   return (
     <div className="w-100" style={{ height: "85vh" }}>
@@ -129,10 +153,7 @@ const Dashboard: React.FC<DashboardProps> = ({ serviceOptions }) => {
                       }
                       id={service}
                     />
-                    <label
-                      className="form-check-label text-capitalize"
-                      htmlFor={service}
-                    >
+                    <label className="form-check-label text-capitalize">
                       {serviceOptions[service as ServiceKey]}
                     </label>
                   </div>
@@ -149,27 +170,49 @@ const Dashboard: React.FC<DashboardProps> = ({ serviceOptions }) => {
                     <th>Email</th>
                     <th>Mobile</th>
                     <th>Postcode</th>
-                    <th>Services</th>
+                    {Object.keys(serviceOptions).map((s) => (
+                      <th key={s} className="text-center">
+                        {serviceOptions[s as ServiceKey]}
+                      </th>
+                    ))}
                   </tr>
                 </thead>
                 <tbody>
-                  {filteredUsers.map((user) => (
-                    <tr key={user.id}>
-                      <td>{user.id}</td>
-                      <td>{user.name}</td>
-                      <td>{user.email}</td>
-                      <td>{user.mobile}</td>
-                      <td>{user.postcode}</td>
-                      <td>
-                        {user.services.map((s) => serviceOptions[s]).join(", ")}
-                      </td>
+                  {filteredLeads.map((lead) => (
+                    <tr key={lead.id}>
+                      <td>{lead.id}</td>
+                      <td>{lead.name}</td>
+                      <td>{lead.email}</td>
+                      <td>{lead.mobile}</td>
+                      <td>{lead.postcode}</td>
+                      {Object.keys(serviceOptions).map((s) => (
+                        <td key={s} className="text-center">
+                          {lead.services.includes(s as ServiceKey) ? "✔" : ""}
+                        </td>
+                      ))}
                     </tr>
                   ))}
+
+                  {/* Total row */}
+                  {filteredLeads.length > 0 && (
+                    <tr className="table-secondary fw-bold">
+                      <td colSpan={5}>Total Leads: {filteredLeads.length}</td>
+                      {Object.keys(serviceOptions).map((s) => (
+                        <td key={s} className="text-center">
+                          {
+                            filteredLeads.filter((u) =>
+                              u.services.includes(s as ServiceKey),
+                            ).length
+                          }
+                        </td>
+                      ))}
+                    </tr>
+                  )}
                 </tbody>
               </table>
-              {filteredUsers.length === 0 && (
+              {filteredLeads.length === 0 && (
                 <p className="text-muted mt-3">
-                  No users match selected filters.
+                  No leads match selected filters.
                 </p>
               )}
             </div>

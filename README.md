@@ -42,6 +42,18 @@ server/
 └── tsconfig.json
 ```
 
+### Frontend
+
+```
+client/
+├── src/
+│ ├─ components/        # Register & dashboard components
+│ ├─ App.tsx            # Main React app
+│ └─ main.tsx           # React entry point
+├─ package.json
+└─ vite.config.ts
+```
+
 ## How to Run the Project
 
 This project has three main components:

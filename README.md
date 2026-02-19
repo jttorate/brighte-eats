@@ -23,6 +23,14 @@ List of all users who submitted interest.
 Which services each user is interested in (delivery, pick_up, payment).
 ```
 
+## Install Prerequisites
+
+Make sure you have these installed:
+
+- Node.js (v18+ recommended) → https://nodejs.org/
+- PostgreSQL → https://www.postgresql.org/download/
+- Git (for GitHub)
+
 ## Project Structure
 
 #### Backend

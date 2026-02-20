@@ -77,6 +77,7 @@ const Dashboard: React.FC<DashboardProps> = ({
         setLeads(sortedLeads);
       }
     } catch (err) {
+      console.log(err);
       setError("Network error. Please try again.");
     } finally {
       setLoading(false);
@@ -130,7 +131,7 @@ const Dashboard: React.FC<DashboardProps> = ({
       <div className="w-100">
         {/* Filter */}
         <div className="mb-3">
-          <label className="form-label fw-bold">Filter by Services</label>
+          <h5 className="form-label fw-bold">Filter by Services</h5>
           <div className="d-flex gap-3 flex-wrap">
             {Object.keys(serviceOptions).map((service) => (
               <div className="form-check" key={service}>
@@ -182,7 +183,7 @@ const Dashboard: React.FC<DashboardProps> = ({
                     {serviceOptions[s as ServiceKey]}
                   </th>
                 ))}
-                <th>Actions</th>
+                <th className="text-center">Action</th>
               </tr>
             </thead>
             <tbody>
@@ -240,7 +241,7 @@ const Dashboard: React.FC<DashboardProps> = ({
 
         {/* Pagination */}
         {totalPages > 0 && (
-          <div className="d-flex justify-content-between align-items-center mt-3">
+          <div className="d-flex justify-content-between align-items-center">
             <div>
               Page {currentPage} of {totalPages}
             </div>

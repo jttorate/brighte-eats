@@ -28,7 +28,7 @@ function App() {
       <div className="col-md-4 bg-light p-5">
         <Register
           serviceOptions={SERVICE_OPTIONS}
-          selectedLead={selectedLead} // now this is leadId
+          selectedLead={selectedLead}
           onClearView={() => setSelectedLead(null)}
           onSuccess={handleRegisterSuccess}
         />

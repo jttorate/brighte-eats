@@ -9,7 +9,7 @@ import { resolvers } from "./resolvers";
 const prisma = new PrismaClient();
 const app: Application = express();
 
-// ✅ Parse whitelist from env
+// Parse whitelist from env
 const whitelist = (process.env.CORS_WHITELIST || "").split(",");
 
 const corsOptions = {

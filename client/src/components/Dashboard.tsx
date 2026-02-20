@@ -88,8 +88,8 @@ const Dashboard: React.FC<DashboardProps> = ({
   };
 
   /**
- * Fetches leads on `refreshKey` change.
- */
+   * Fetches leads on `refreshKey` change.
+   */
   useEffect(() => {
     fetchLeads();
   }, [refreshKey]);

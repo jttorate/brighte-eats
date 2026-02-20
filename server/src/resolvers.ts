@@ -1,3 +1,20 @@
+/**
+ * GraphQL resolvers for the Leads API.
+ *
+ * @remarks
+ * Contains Query and Mutation resolvers for fetching and creating leads.
+ * Also includes a field resolver for `Lead.services`.
+ *
+ * Query Resolvers:
+ * - `leads` – Fetches all leads with their associated services.
+ * - `lead` – Fetches a single lead by ID, including services.
+ *
+ * Mutation Resolvers:
+ * - `register` – Creates a new lead and associates selected services.
+ *
+ * Field Resolvers:
+ * - `Lead.services` – Maps the services relation to a simple array of service names.
+ */
 export const resolvers = {
   Query: {
     leads: async (_: any, __: any, { prisma }: any) => {

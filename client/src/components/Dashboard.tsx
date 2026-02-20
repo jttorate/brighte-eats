@@ -201,7 +201,7 @@ const Dashboard: React.FC<DashboardProps> = ({
 
         {/* Table */}
         <div className="table-responsive">
-          <table className="table table-bordered table-striped">
+          <table className="table table-bordered table-striped mb-0">
             <thead className="table-light">
               <tr>
                 <th>ID</th>
@@ -272,7 +272,7 @@ const Dashboard: React.FC<DashboardProps> = ({
 
         {/* Pagination */}
         {totalPages > 0 && (
-          <div className="d-flex justify-content-between align-items-center">
+          <div className="d-flex justify-content-between align-items-center my-3">
             <div>
               Page {currentPage} of {totalPages}
             </div>

@@ -16,8 +16,13 @@ function App() {
   const [refreshKey, setRefreshKey] = useState(0);
   const [selectedLead, setSelectedLead] = useState<any>(null); // for view mode
 
-  // Callback to trigger dashboard refresh
-  const handleRegisterSuccess = () => {
+  /**
+   * Handles successful registration events.
+   *
+   * Increments the refresh key to trigger a dashboard re-fetch
+   * and clears the currently selected lead.
+   */
+  const handleRegisterSuccess = (): void => {
     setRefreshKey((prev) => prev + 1);
     setSelectedLead(null);
   };

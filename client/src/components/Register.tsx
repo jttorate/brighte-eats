@@ -37,7 +37,10 @@ const Register: React.FC<RegisterProps> = ({
 
   const isViewMode = !!selectedLead;
 
-  // Fetch lead details when viewing
+  /**
+   * Loads selected lead details into the form.
+   * Resets the form when no lead is selected.
+   */
   useEffect(() => {
     if (selectedLead) {
       setLoading(true);
@@ -87,6 +90,12 @@ const Register: React.FC<RegisterProps> = ({
     }
   }, [selectedLead]);
 
+  /**
+   * Submits the registration form via GraphQL and handles
+   * loading, success, and error states.
+   *
+   * @param e - The form submission event.
+   */
   const handleSubmit = async (e: React.SyntheticEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (isViewMode) return;
@@ -136,6 +145,7 @@ const Register: React.FC<RegisterProps> = ({
         onSuccess?.();
       }
     } catch (err) {
+      console.log(err);
       setError("Network error. Please try again.");
     } finally {
       setLoading(false);

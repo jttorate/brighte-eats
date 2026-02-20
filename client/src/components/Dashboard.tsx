@@ -41,7 +41,10 @@ const Dashboard: React.FC<DashboardProps> = ({
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(5);
 
-  // Fetch leads
+  /**
+   * Retrieves all leads, sorts them by creation date,
+   * and updates state. Handles loading and errors.
+   */
   const fetchLeads = async () => {
     setLoading(true);
     setError(null);
@@ -84,11 +87,20 @@ const Dashboard: React.FC<DashboardProps> = ({
     }
   };
 
+  /**
+ * Fetches leads on `refreshKey` change.
+ */
   useEffect(() => {
     fetchLeads();
   }, [refreshKey]);
 
-  // Filtered leads
+  /**
+   * Memoized list of leads filtered by selected services.
+   *
+   * If one or more services are selected, only leads that include
+   * at least one of those services are returned.
+   * Otherwise, all leads are returned.
+   */
   const filteredLeads = useMemo(() => {
     return selectedServices.length > 0
       ? leads.filter((lead) =>
@@ -97,18 +109,37 @@ const Dashboard: React.FC<DashboardProps> = ({
       : leads;
   }, [leads, selectedServices]);
 
+  /**
+   * Total number of pages based on the filtered leads
+   * and the configured page size.
+   */
   const totalPages = Math.ceil(filteredLeads.length / pageSize);
+
+  /**
+   * Subset of filtered leads for the current page.
+   * Calculated using zero-based index slicing.
+   */
   const paginatedLeads = filteredLeads.slice(
     (currentPage - 1) * pageSize,
     currentPage * pageSize,
   );
 
-  const handleServiceToggle = (service: ServiceKey) => {
-    setSelectedServices((prev) =>
-      prev.includes(service)
+  /**
+   * Toggles a service in the selected services list.
+   * Adds it if not selected, removes it if already selected,
+   * and resets the current page to `1`.
+   *
+   * @param service - The {@link ServiceKey} to toggle.
+   */
+  const handleServiceToggle = (service: ServiceKey): void => {
+    setSelectedServices((prev) => {
+      const isSelected = prev.includes(service);
+
+      return isSelected
         ? prev.filter((s) => s !== service)
-        : [...prev, service],
-    );
+        : [...prev, service];
+    });
+
     setCurrentPage(1);
   };
 

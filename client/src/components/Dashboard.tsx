@@ -151,7 +151,7 @@ const Dashboard: React.FC<DashboardProps> = ({
     mainContent = (
       <div className="d-flex align-items-center">
         <div className="spinner-border text-primary me-2"></div>
-        <span>Please wait...</span>
+        <span>You are using the free tier. Please wait...</span>
       </div>
     );
   } else if (error) {

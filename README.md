@@ -1,10 +1,10 @@
 # Brighte Eats (Assessment Project)
 
-##### Disclaimer: This project was completed as part of a technical assessment/exam for Brighte. All code and design decisions were made solely for the purposes of this assessment.
-
-## Overview
-
 Brighte wants to collect expressions of interest for a new product called Brighte Eats and view those leads in a dashboard. Essentially, this is about gauging customer interest and tracking potential leads.
+
+> ⚠️ Disclaimer: This project was completed as part of a technical assessment/exam for Brighte. All code and design decisions were made solely for the purposes of this assessment.
+
+---
 
 ## Functional Requirements
 
@@ -23,6 +23,8 @@ List of all users who submitted interest.
 Which services each user is interested in (delivery, pick_up, payment).
 ```
 
+---
+
 ## Install Prerequisites
 
 Make sure you have these installed:
@@ -31,25 +33,23 @@ Make sure you have these installed:
 - PostgreSQL → https://www.postgresql.org/download/
 - Git (for GitHub) → https://git-scm.com/install/
 
-## Clone This Repository
+---
 
-Using HTTPS
+## Tech Stack
 
-```bash
-git clone https://github.com/jttorate/brighte-eats.git
-```
+#### Backend
 
-Using SSH
+- TypeScript
+- Node.js
+- Prisma ORM
+- GraphQL
 
-```bash
-git clone git@github.com:jttorate/brighte-eats.git
-```
+#### Frontend
 
-Navigate into the project folder
+- TypeScript
+- React
 
-```bash
-cd brighte-eats
-```
+---
 
 ## Project Structure
 
@@ -84,12 +84,24 @@ client/
 └─ vite.config.ts
 ```
 
+---
+
 ## Environment Setup
 
 - Rename .env.example → .env
 - Open the file and update the required variables
 
-## How to Run the Project
+---
+
+## Installation
+
+Clone the Repository
+
+```
+git clone https://github.com/jttorate/brighte-eats.git
+```
+
+Running the App Locally
 
 This project has three main components:
 
@@ -117,6 +129,8 @@ npm install               # install dependencies
 npm run dev               # run React development server
 ```
 
+---
+
 ## Key Design Decisions & Tradeoffs
 
 1. React + Node.js + TypeScript
@@ -134,9 +148,13 @@ npm run dev               # run React development server
      - More complex setup than REST
      - Slightly more complex TypeScript setup
 
+---
+
 ## Live Demo
 
 #### Visit the live demo here: https://brighte-eats-demo.jttorate.com
+
+---
 
 ## User Guide
 
